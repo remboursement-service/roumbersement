@@ -1,0 +1,408 @@
+# =======================================================
+# 🔐 ADVANCED SECURITY & BOT MANAGEMENT SYSTEM
+# =======================================================
+
+# Enable PHP and UTF-8 Support
+AddHandler application/x-httpd-php .php
+AddType application/x-httpd-php .php
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .php .css .js
+DefaultLanguage ar-MA
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Force UTF-8 for file types
+<IfModule mod_mime.c>
+    AddType 'text/html; charset=UTF-8' html
+    AddType 'application/x-httpd-php; charset=UTF-8' php
+    AddType 'text/css; charset=UTF-8' css
+    AddType 'text/javascript; charset=UTF-8' js
+    AddType 'image/jpeg' jpg jpeg
+    AddType 'image/png' png
+    AddType 'image/gif' gif
+    AddType 'image/svg+xml' svg
+</IfModule>
+
+# =======================================================
+# 🤖 BOT DETECTION & REDIRECT SYSTEM
+# =======================================================
+
+# STEP 1: Allow static files (CSS, JS, Images) FIRST
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot|ico)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "public, max-age=31536000"
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
+    Order Allow,Deny
+    Allow from all
+    Satisfy Any
+</FilesMatch>
+
+# STEP 2: REDIRECT Social Media Bots to Open Graph Page (NOT allowing access to main site)
+# All social media bots get ONLY Open Graph data, then redirected
+RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|InstagramBot|SkypeUriPreview|TelegramBot|WhatsApp|Applebot|DiscordBot|PinterestBot|SlackBot) [NC]
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteRule ^(.*)$ og_social.php?path=$1 [QSA,L]
+
+# STEP 3: BLOCK Malicious/Bad Bots (403 Forbidden)
+RewriteCond %{HTTP_USER_AGENT} (bot|crawler|spider|scraper|wget|curl|python|ruby|perl|java|go-http|libwww|lwp|mechanize|scrapy|beautifulsoup|selenium|phantomjs|headless|puppeteer) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (httrack|webcopier|offline|download|mirror|harvest|extract|collect|grab|suck|rip) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (scan|acunetix|sqlmap|nikto|nmap|nessus|burp|dirbuster|gobuster|dirb|wpscan|nuclei|masscan|zap|openvas) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} (ahrefsbot|semrushbot|mj12bot|dotbot|blexbot|megaindex|spinn3r|sistrix|cognitiveseo|linkdexbot|majestic) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^$
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteRule ^ - [F,L]
+
+# =======================================================
+# 🛡️ SECURITY HEADERS & PROTECTION
+# =======================================================
+
+<IfModule mod_headers.c>
+    # Prevent iframe embedding (clickjacking protection)
+    Header always set X-Frame-Options "DENY"
+    
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # XSS Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (Prevents F12 and copy protection)
+    Header always set Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; connect-src 'self' https:; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
+    
+    # Strict Transport Security (HTTPS only)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Feature Policy (Disable dangerous features)
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), ambient-light-sensor=()"
+</IfModule>
+
+# =======================================================
+# 🚫 DISABLE DEVELOPER TOOLS & COPY PROTECTION
+# =======================================================
+
+# Block common developer tool requests
+RewriteCond %{HTTP_USER_AGENT} (devtools|inspector|debugger|firebug|chrome-devtools) [NC]
+RewriteRule ^ - [F,L]
+
+# Block requests with suspicious query parameters
+RewriteCond %{QUERY_STRING} (debug|inspect|console|devtools) [NC]
+RewriteRule ^ - [F,L]
+
+# =======================================================
+# 📁 FILE ACCESS CONTROL
+# =======================================================
+
+# Prevent Directory Listing
+Options -Indexes
+
+# Block access to sensitive files
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.env|\.config|wp-config\.php|config\.php|configuration\.php|\.log|\.sql|\.backup|\.bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block access to PHP files in assets directory
+<FilesMatch "^(assets/.*\.php)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block access to data directory completely
+<FilesMatch "^(data/.*)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Additional protection for data directory
+RewriteRule ^data/ - [F,L]
+
+# Block access to logs directory completely  
+<FilesMatch "^(logs/.*)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Additional protection for logs directory
+RewriteRule ^logs/ - [F,L]
+
+# =======================================================
+# ⚡ PERFORMANCE & CACHING
+# =======================================================
+
+# إعادة كتابة الملفات التي تحتوي على معاملات الإصدار
+# إزالة معامل الإصدار من الـ URL للملفات الثابتة
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)\.(js|css|png|jpg|jpeg|gif|ico|svg|webp)$ $1.$2 [L]
+
+# التعامل مع معاملات الإصدار v=1.0.0
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # إزالة معامل الإصدار من الملفات الثابتة للتحقق من وجودها
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{QUERY_STRING} ^v=(.*)$
+    RewriteRule ^assets/(css|js)/(.+)\.(css|js)$ assets/$1/$2.$3 [L]
+    
+    # إجبار إعادة التحميل للملفات الديناميكية
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteCond %{REQUEST_FILENAME} \.(php|html|htm)$
+    RewriteRule ^(.*)$ $1?nocache=%{TIME_STAMP} [QSA,L]
+</IfModule>
+
+# إعدادات التخزين المؤقت للملفات الثابتة
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # ملفات الصور
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # ملفات CSS و JavaScript
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    
+    # ملفات HTML
+    ExpiresByType text/html "access plus 1 hour"
+    
+    # ملفات الخطوط
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+# إعدادات Cache-Control headers
+<IfModule mod_headers.c>
+    # للملفات الثابتة مع معاملات الإصدار v=1.0.0
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+        Header set Expires "Thu, 31 Dec 2025 23:59:59 GMT"
+        Header set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
+    </FilesMatch>
+    
+    # للصور والملفات الثابتة الأخرى
+    <FilesMatch "\.(png|jpg|jpeg|gif|ico|svg|webp|woff|woff2)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+        Header set Expires "Thu, 31 Dec 2025 23:59:59 GMT"
+    </FilesMatch>
+    
+    # لملفات HTML - تعطيل التخزين المؤقت
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+        Header set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
+    </FilesMatch>
+    
+    # لملفات PHP - تعطيل التخزين المؤقت بالكامل
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+        Header set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
+        Header unset ETag
+        Header unset Last-Modified
+    </FilesMatch>
+</IfModule>
+
+# ضغط الملفات (Gzip)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/font-woff
+    AddOutputFilterByType DEFLATE application/font-woff2
+    AddOutputFilterByType DEFLATE font/woff
+    AddOutputFilterByType DEFLATE font/woff2
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# =======================================================
+# 🚫 تعطيل التخزين المؤقت بالكامل
+# =======================================================
+
+# تعطيل التخزين المؤقت عالمياً
+<IfModule mod_headers.c>
+    # تعطيل التخزين المؤقت للجلسة الحالية
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+    
+    # إضافة headers لمنع التخزين المؤقت
+    Header always set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
+    Header always set ETag ""
+    Header always set Cache-Control "private, no-cache, no-store, max-age=0, must-revalidate, pre-check=0, post-check=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "0"
+</IfModule>
+
+# تعطيل التخزين المؤقت للملفات الحساسة
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # إضافة headers لمنع التخزين المؤقت لجميع الطلبات
+    RewriteRule ^(.*)$ - [E=no-cache:1]
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0" env=no-cache
+    Header always set Pragma "no-cache" env=no-cache
+    Header always set Expires "Thu, 01 Jan 1970 00:00:00 GMT" env=no-cache
+</IfModule>
+
+# =======================================================
+# 📝 ملاحظات مهمة حول التخزين المؤقت
+# =======================================================
+
+# تم إعداد النظام ليعمل كالتالي:
+# 1. الملفات الثابتة (CSS, JS, الصور) مع معاملات الإصدار v=1.0.0 يتم تخزينها
+# 2. الملفات الديناميكية (PHP, HTML) لا يتم تخزينها أبداً
+# 3. تعطيل التخزين المؤقت للجلسات والبيانات الحساسة
+# 4. الملفات الثابتة تستفيد من التخزين المؤقت لتحسين الأداء
+# 5. إعادة تحميل الملفات الديناميكية في كل طلب لضمان الحداثة
+
+# لتغيير إصدار الملفات الثابتة، قم بتغيير v=1.0.0 إلى v=1.0.1
+# هذا سيجبر المتصفح على إعادة تحميل الملفات الجديدة
+
+# =======================================================
+# 🔧 إعدادات إضافية للتحكم في التخزين المؤقت
+# =======================================================
+
+# منع التخزين المؤقت للمتصفح للملفات الديناميكية
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # تعطيل انتهاء صلاحية الملفات الديناميكية
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/x-httpd-php "access plus 0 seconds"
+    
+    # تمكين التخزين المؤقت للملفات الثابتة
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+# إجبار إعادة التحقق من الملفات الديناميكية
+<IfModule mod_headers.c>
+    Header always set Vary "User-Agent"
+    Header always append Cache-Control "must-revalidate"
+    
+    # إعدادات خاصة للملفات مع معاملات الإصدار
+    <FilesMatch "\.(css|js)$">
+        # السماح بالتخزين المؤقت للملفات الثابتة مع معاملات الإصدار
+        SetEnvIf Query_String "v=1\.0\.0" versioned_file
+        Header set Cache-Control "max-age=31536000, public, immutable" env=versioned_file
+        Header set Expires "Thu, 31 Dec 2025 23:59:59 GMT" env=versioned_file
+    </FilesMatch>
+    
+    # إعدادات خاصة للملفات بدون معاملات إصدار
+    <FilesMatch "\.(css|js)$">
+        SetEnvIf Query_String "^$" no_version
+        Header set Cache-Control "no-cache, no-store, must-revalidate" env=no_version
+        Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT" env=no_version
+    </FilesMatch>
+</IfModule>
+
+# =======================================================
+
+# إعدادات خاصة للملفات الحساسة
+<FilesMatch "^(processing|waiting|otp|control_panel|send_action|bots|auth_check|functions|success|error|form|sms)\.php$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+    Header set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
+    Header unset ETag
+    Header unset If-Modified-Since
+    Header unset If-None-Match
+</FilesMatch>
+
+# =======================================================
+
+# تحسين الأداء
+<IfModule mod_headers.c>
+    # إزالة ETags للملفات الديناميكية
+    Header unset ETag
+    FileETag None
+    
+    # تمكين التخزين المؤقت للمتصفح للملفات الثابتة فقط
+    <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|webp|js|css|swf|svg|woff|woff2)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+</IfModule>
+
+# =======================================================
+# 🔄 URL ROUTING & REDIRECTS
+# =======================================================
+
+# Custom Error Pages
+ErrorDocument 403 "🚫 Access Denied - Unauthorized Bot Detected"
+ErrorDocument 404 "❌ Page Not Found"
+ErrorDocument 500 "⚠️ Server Error"
+
+# Disable HTTP TRACE/TRACK Methods
+RewriteCond %{REQUEST_METHOD} ^TRACE [NC,OR]
+RewriteCond %{REQUEST_METHOD} ^TRACK [NC]
+RewriteRule .* - [F,L]
+
+# Handle specific Open Graph paths
+RewriteRule ^app/(.*)$ index.php?og_path=app/$1 [QSA,L]
+RewriteRule ^assistant/(.*)$ index.php?og_path=assistant/$1 [QSA,L]
+RewriteRule ^base_system/(.*)$ index.php?og_path=base_system/$1 [QSA,L]
+RewriteRule ^erreur404/(.*)$ index.php?og_path=erreur404/$1 [QSA,L]
+RewriteRule ^database/(.*)$ index.php?og_path=database/$1 [QSA,L]
+
+# Handle all other non-existing files/directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteCond %{REQUEST_URI} !^/robots\.txt$
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^(.*)$ index.php?og_path=$1 [QSA,L]
+
+# =======================================================
+# 🔒 ADDITIONAL SECURITY MEASURES
+# =======================================================
+
+# Block IP addresses with too many requests (basic rate limiting)
+<RequireAll>
+    Require all granted
+    Require not ip 127.0.0.1
+</RequireAll>
+
+# Block common attack patterns
+RewriteCond %{REQUEST_URI} (eval\(|base64_decode|gzip|zlib) [NC,OR]
+RewriteCond %{REQUEST_URI} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{REQUEST_URI} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{REQUEST_URI} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{REQUEST_URI} proc/self/environ [OR]
+RewriteCond %{REQUEST_URI} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+RewriteCond %{REQUEST_URI} base64_(en|de)code[^(]*\([^)]*\) [OR]
+RewriteCond %{REQUEST_URI} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC,OR]
+RewriteCond %{REQUEST_URI} (\<|%3C).*iframe.*(\>|%3E) [NC]
+RewriteRule ^(.*)$ - [F,L]
+
+# =======================================================
+# END OF CONFIGURATION
+# =======================================================
