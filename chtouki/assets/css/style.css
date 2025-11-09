@@ -1,0 +1,561 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Main Container */
+.main-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+/* Logo Section */
+.logo-section {
+    text-align: center;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background-color: #ffffff;
+}
+
+.main-logo {
+    width: 116px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #007bff;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+}
+
+/* Operator Section */
+.operator-section {
+    margin-bottom: 30px;
+    background-color: #ffffff;
+}
+
+.operator-section h2 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 20px;
+}
+
+.required {
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+.operator-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px 0;
+}
+
+
+
+
+.operator-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Checkmark */
+.check-mark {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 25px;
+    height: 25px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.check-mark::before {
+    content: '✓';
+    color: white;
+    font-size: 16px;
+}
+
+/* Hover State */
+.operator-item:hover .operator-content {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Selected State */
+.operator-item input[type="radio"]:checked + .operator-content {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.operator-item input[type="radio"]:checked + .operator-content .check-mark {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.operator-item input[type="radio"]:checked + .operator-content .operator-logo {
+    transform: scale(1.05);
+}
+
+/* Error Message */
+.operator-error {
+    display: none;
+    color: #dc3545;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.operator-error.visible {
+    display: block;
+}
+
+/* Focus State */
+.operator-item input[type="radio"]:focus + .operator-content {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Card Visuals */
+.card-visuals {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.card-logo {
+    display: none;
+    max-width: 300px;
+    margin: 0 auto 15px;
+}
+
+.card-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Form Section */
+.form-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    z-index: -1;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-row input {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: left;
+}
+
+/* Input Fields with subtle borders */
+input, select {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input:focus, 
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Card Number Input Special Styling */
+#numero_carte {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-family: monospace;
+    letter-spacing: 1px;
+    font-size: 18px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+#numero_carte:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+#numero_carte::placeholder {
+    color: #bbb;
+    letter-spacing: 0;
+}
+
+/* Card Details Section */
+.card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 15px;
+    background-color: #fafafa;
+}
+
+/* Messages */
+.error-message {
+    display: none;
+    padding: 15px;
+    background-color: #ffffff;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.success-message {
+    display: none;
+    padding: 15px;
+    background-color: #ffffff;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+/* Submit Button with shadow */
+.submit-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #080;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button:hover {
+    background-color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Language Switch */
+.language-switch {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.language-switch a {
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #666;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.language-switch a:hover {
+    background: #f5f5f5;
+}
+
+.language-switch a.active {
+    background: #007bff;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .main-container {
+        margin: 0;
+        padding: 15px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .card-details {
+        grid-template-columns: 1fr;
+    }
+
+    .operator-grid {
+        justify-content: center;
+    }
+
+    .logo-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .operator-section h2 {
+        text-align: center;
+    }
+    
+    /* ===== تحسين شعارات البطاقات للشاشات الصغيرة ===== */
+    .card-type-icons {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: center;
+        position: relative !important;
+        right: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        top: auto !important;
+        margin: 7% !important;
+    }
+    
+    .card-icon {
+        width: 35px !important;
+        height: 22px !important;
+        padding: 2px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 0.7 !important;
+    }
+    
+    .card-icon.active {
+        transform: scale(1.05) !important;
+        opacity: 1 !important;
+    }
+    
+    .card-icon:hover:not(.active) {
+        transform: scale(1.02) !important;
+    }
+}
+
+/* ===== Card Input Styling ===== */
+.card-input-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.card-input-container input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.card-input-container input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* ===== شعارات البطاقات أسفل حقل رقم البطاقة ===== */
+.card-type-icons {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    visibility: visible;
+    margin: 44px 0px 7px 10px !important;
+    opacity: 1;
+}
+
+/* ===== تصميم شعارات البطاقات ===== */
+.card-icon {
+    width: 40px;
+    height: 26px;
+    object-fit: contain;
+    opacity: 0.7 !important;
+    filter: grayscale(60%) brightness(1);
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    padding: 3px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* ===== حالة النشاط للشعارات ===== */
+.card-icon.active {
+    opacity: 1 !important;
+    filter: none !important;
+    background-color: #ffffff !important;
+    border: 2px solid #007bff !important;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.15) !important;
+    transform: scale(1.1) !important;
+}
+
+/* ===== تأثير التمرير على الشعارات ===== */
+.card-icon:hover:not(.active) {
+    opacity: 0.75;
+    filter: grayscale(40%) brightness(1.1);
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+/* ===== تحسين الأداء والانتقالات ===== */
+.card-type-icons {
+    will-change: transform;
+    contain: layout;
+}
+
+.card-icon {
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ===== تأثير النقر على الشعارات ===== */
+.card-icon:active {
+    transform: scale(0.95);
+}
+
+.card-icon.active:active {
+    transform: scale(1.05);
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+select:hover {
+    border-color: #999;
+}
+
+/* تصميم خاص لمجموعة تاريخ الانتهاء */
+.card-details select {
+    width: auto;
+    min-width: 80px;
+    margin-right: 10px;
+}
+
+/* تصميم خاص لاختيار البلد */
+#pays {
+    margin-bottom: 20px;
+}
+
+/* تغيير لون النص الافتراضي في select */
+select option[value=""] {
+    color: #666;
+}
+
+/* تصميم الخيارات في القائمة المنسدلة */
+select option {
+    padding: 12px;
+    color: #333;
+}
